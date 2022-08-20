@@ -1,75 +1,48 @@
 //variables
-//carrito
-const carrito = document.querySelector('#carrito');
-//contenedor de cursos seleccionados
-const contenedorCarrito = document.querySelector('#lista-carrito tbody');
-//boton para vaciar el carrito
-const vaciarCarritoBTN = document.querySelector('#vaciar-carrito');
-//lista de los cursos disponibles
 const listaCursos = document.querySelector('#lista-cursos');
-//contenedor de articulos seleccionados
-let articulosComprados = [];
+//cursos agregados en el carrito
+const listaCarrito = document.querySelector('#lista-carrito');
+//eliminar curso
+const carrito = document.querySelector('#carrito');
+//vaciar carrito
+const vaciarCarrito = document.querySelector('#vaciar-carrito');
+//array donde se iran agregando los cursos agregados
+let cursosSeleccionados = [];
 
-//cargar los event listeners
-cargarEventListeners();
-
-function cargarEventListeners() { 
-    //añadir un eventlistener a listaCursos para detecar cuando presionen "AGREGAR AL CARRITO"
-    listaCursos.addEventListener('click', agregarCurso);
-    //eliminar un curso del carrito
-    carrito.addEventListener('click', eliminarCursoCarrito);
-    //vaciar el carrito
-    vaciarCarritoBTN.addEventListener('click', () => {
-        //vaciar el arreglo
-        articulosComprados = [];
-        //limpiar el html
-        limpiarHTML();
-
+//eventlisteners
+eventListeners();
+function eventListeners() {
+    //detectar cuando hagan click en los cursos
+    listaCursos.addEventListener('click', agregarCursos);
+    //borrar un curso
+    carrito.addEventListener('click', borrarCurso);
+    //vaciar carrito
+    vaciarCarrito.addEventListener('click', () => {
+        //vaciar carrito
+        cursosSeleccionados = [];
+        //renderizar
+        carritoHTML();
     });
 }
 
+
+
 //funciones
-function agregarCurso( e ) {
-    //prevenir el refresco de la pagina al presionar sobre un enlace
+//agregar cursos
+function agregarCursos( e ) {
     e.preventDefault();
-    //detectar las clases del elemento que se esta hacienco click
-    //console.log( e.target.classList.contains('agregar-carrito') );//true o false
+    //console.log( e.target.classList.contains('agregar-carrito') );
+    //detectar cuando hagan click en "AGREGAR AL CARRITO"
     if ( e.target.classList.contains('agregar-carrito') ) {
-        //crear el html del curso seleccionado
-        //console.log( e.target.parentElement.parentElement ) 
+        //html del curso seleccionado
         const cursoSeleccionado = e.target.parentElement.parentElement;
-
-        //mandar a funcion leerDatosCuros
-        leerDatosCuros( cursoSeleccionado );
-
+        //lo mandamos a una funcion para leer los datos
+        leerDatos( cursoSeleccionado );
     }
-
 }
-
-//eliminar el curso del contenedor carrito
-function eliminarCursoCarrito( e ) {
-    //console.log( e.target.classList.contains('borrar-curso') );
-    //detectar cuando hagan click en el boton para eliminar el curso
-    if ( e.target.classList.contains('borrar-curso') ) {
-        //console.log(e.target.getAttribute('data-id') );
-        //identificamos el id del curso dentro del carrito
-        const cursoId = e.target.getAttribute('data-id');
-        //creamos una copia del arreglo con filter() para poder quitar  el curso a eliminar
-        //y lo asignamos a articulosComprados
-        articulosComprados = articulosComprados.filter( curso => curso.id !== cursoId );
-        //console.log( articulosComprados );
-
-        //luego llamamos carritoHTML() para renderizar el nuevo arreglo con los cursos eliminados
-        carritoHTML();
- 
-    }
-
-}
-
-//leer los datos del curso
-function leerDatosCuros( cursoSeleccionado ) {
-    //console.log( cursoSeleccionado );
-    //creamos una variable con la informacion que necitamos del curso
+//crear un objeto con la info que necesitamos a partir de la funcion agregarCursos()
+function leerDatos( cursoSeleccionado ) {
+    //construir objeto
     const infoCurso = {
         imagen: cursoSeleccionado.querySelector('img').src,
         titulo: cursoSeleccionado.querySelector('h4').textContent,
@@ -77,74 +50,78 @@ function leerDatosCuros( cursoSeleccionado ) {
         id: cursoSeleccionado.querySelector('a').getAttribute('data-id'),
         cantidad: 1
     }
+    //verificar si se vuelve agregar el mismo curso usando el metodo some()
+    const existe = cursosSeleccionados.some( curso => curso.id === infoCurso.id );
     
-    //verificar si hay un curso repetido en el carrito o es nuevo con .some()
-    //comparamos el id del arreglo con el del infoCurso para saber si ya existe en el arreglo articulosComprados
-    const existe = articulosComprados.some( curso => curso.id === infoCurso.id );
-    
-    if (existe) {
-        //se actualiza la cantidad
-        //recorremos el arreglo con map() para crear una copia del arreglo original
-        const curso = articulosComprados.map( curso => {
-            //con el IF() verificamos si el id del arreglo articulosComprados
-            //es igual al que esta siendo agregado
+    //si existe
+    if ( existe ) {
+        //recorrer el array cursosSeleccionados
+        const curso = cursosSeleccionados.map( curso => {
+            //verificar el mismo id curso
             if ( curso.id === infoCurso.id ) {
-                //se incrementa la cnatidad
+                //actualizar cantidad
                 curso.cantidad++;
-                //se regresa el arreglo actualizado
-                return curso;
-
-            }else {
-                //se regresa el arreglo curso sin duplicados
+                //retonar curso con la cantidad actualizada
+                return curso; 
+            }else{
+                //retornar curso
                 return curso;
             }
-        });
-        //se asigna a articulosComprados el valor de curso con el nuevo arreglo actualizado
-        articulosComprados = [ ...curso ];
+        })
 
-    }else {
+        //asignamos el valor de curso a cursosSeleccionados
+        cursosSeleccionados = [ ...curso ];
+
+    }else{
         //console.log( infoCurso );
-        //lo añadimos al arreglo
-        articulosComprados = [ ...articulosComprados, infoCurso ]
-        //console.log( articulosComprados );
+        cursosSeleccionados = [ ...cursosSeleccionados, infoCurso ];
     }
 
-    //mandar al carritHTML para renderizarlo
+    //console.log( cursosSeleccionados );
+    //renderizar en el html
     carritoHTML();
-
 }
+//borrar curso
+function borrarCurso( e ) {
 
-//renderizar el arreglo en html
-function carritoHTML() {
-    //limpiar el html de los cursos anteriores
-    limpiarHTML();
-
-    //recorrer el arreglo
-    articulosComprados.forEach( curso => {
-        //para cada curso creamos un elemento html <tr></tr>    
-        const row = document.createElement('tr');
-        //unimos el row con el html
-        row.innerHTML = `
-            <td> <img src=" ${ curso.imagen } " alt="${ curso.titulo }" width="100"/> </td>
-            <td>${ curso.titulo }</td>
-            <td>${ curso.precio }</td>
-            <td>${ curso.cantidad }</td>
-            <td><a href="#" class="borrar-curso" data-id="${ curso.id }" >x</a></td>
-        `;
+    //console.log( e.target.classList.contains('borrar-curso') );
+    if ( e.target.classList.contains('borrar-curso') ) {
+        //console.log( e.target.getAttribute('data-id') );
+        const cursoId = e.target.getAttribute('data-id');
         
-        //renderizamos el row en el html con appendChild()
-        contenedorCarrito.appendChild( row );
+        //filtrar
+        cursosSeleccionados = cursosSeleccionados.filter( curso => curso.id !== cursoId );
 
-    });
-
-}
-
-//limpiar html de cursos anteriores
-function limpiarHTML() {
-    //mientras haya un elemento dentro del contenedorCarrito
-    while ( contenedorCarrito.firstChild ) {
-        //eliminar los elementos del carrito
-        contenedorCarrito.removeChild( contenedorCarrito.firstChild );
+        //renderizamos
+        carritoHTML();
     }
 }
-
+//renderizar en el carrito html
+function carritoHTML() {
+    //limpiar HTML anterior
+    limpiarHTML();
+    //iterar para poder mostrar en el carrito
+    cursosSeleccionados.forEach(curso => {
+        //destructuring
+        const { cantidad, id, imagen, precio, titulo } = curso;
+        
+        //crear un elemento html
+        const row = document.createElement('tr');
+        //
+        row.innerHTML = `
+            <td><img src="${ imagen }" width="100"> </td>
+            <td>${ titulo }</td>
+            <td>${ precio }</td>
+            <td>${ cantidad }</td>
+            <td><a class="borrar-curso" data-id="${ id }">x</a></td>
+        `;
+        //renderizar en el html
+        listaCarrito.appendChild( row );
+    });
+}
+//limpiar html
+function limpiarHTML() {
+    while ( listaCarrito.firstChild ) {
+        listaCarrito.removeChild( listaCarrito.firstChild );
+    }
+}
