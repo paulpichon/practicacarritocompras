@@ -18,6 +18,12 @@ function eventListeners() {
     listaCursos.addEventListener('click', agregarCurso);
     //funcionalidad a la variable carrito
     carrito.addEventListener('click', eliminarCurso);
+    //recuperar los cursos en localstorage
+    document.addEventListener('DOMContentLoaded', () => {
+        cursosSeleccionados = JSON.parse( localStorage.getItem('carritoCompras') ) || [];
+        //renderizamos
+        cursoSeleccionadoHTML();
+    });
     //vaciar el carrito
     vaciarCarrito.addEventListener('click', () => {
         //vaciar el arreglo cursosSeleccionados
@@ -111,6 +117,13 @@ function cursoSeleccionadoHTML() {
         //renderizar
         cursosCarrito.appendChild( row );
     });
+    //sincronizar el local storage
+    sincronizarStorage();
+}
+//sincronizar el local storage
+function sincronizarStorage() {
+    //crear el local storage
+    localStorage.setItem('carritoCompras', JSON.stringify( cursosSeleccionados ));
 }
 //limpiar el html
 function limpiarHTML() {
