@@ -1,131 +1,123 @@
 //variables
 const listaCursos = document.querySelector('#lista-cursos');
-//donde se renderizar los cursos seleccionados
-const cursosCarrito = document.querySelector('#lista-carrito tbody');
-//aqui se detectara cuando hagan click en borrar carrito
+//variable que hace referencia a donde se mostraran los curso en el carrito
+const listaCarrito = document.querySelector('#lista-carrito');
+//borrar curso
 const carrito = document.querySelector('#carrito');
 //vaciar carrito
-const btnVaciarCarrito = document.querySelector('#vaciar-carrito');
-//arreglo que contendra los cursos seleccionados
-let cursosSeleccionados = [];
-
+const vaciarCarrito = document.querySelector('#vaciar-carrito');
+//arreglo vacio donde se almacenaran los cursos agregados
+let cursosSeleccinados = [];
 
 //listeners
-eventListener();
-
-function eventListener() {
-    //añadir listener a la variable que hace referencia a la lista de cursos
+eventListeners();
+function eventListeners() {
+    //agrecar cursos
     listaCursos.addEventListener('click', agregarCurso);
-    //borrar curso seleccionado
+    //listener a carrito
     carrito.addEventListener('click', borrarCurso);
-    //cargar curso de storage al cargar la pagina
-    document.addEventListener('DOMContentLoaded', () => {
-        cursosSeleccionados = JSON.parse( localStorage.getItem('cursosStorage') );
-        //renderizar
-        carritoHTML();
-    });
     //vaciar carrito
-    btnVaciarCarrito.addEventListener('click', () => {
-        //vaciar carrito
-        cursosSeleccionados = [];
-        //renderizar
-        carritoHTML();
+    vaciarCarrito.addEventListener('click', () => {
+        cursosSeleccinados = [];
+        cursoHTML();
+    });
+    //recuperar los cursos en storage
+    document.addEventListener('DOMContentLoaded', () => {
+        cursosSeleccinados = JSON.parse( localStorage.getItem('carritoStorage') ) || [];
+        //RENDERIZAR
+        cursoHTML();
     });
 }
-
-//functions
-//agregar cursos al carrito
+//funciones
+//funcion para gregar curso
 function agregarCurso( e ) {
     //prevenir la accion por defecto
     e.preventDefault();
-    //identificar cuando hagan click en "AGREGAR AL CARRITO"
-    //console.log( e.target.classList.contains('agregar-carrito') );
+    //console.log(e.target.classList.contains('agregar-carrito') );
+    //verificar que hagan click en el boton de agregar cursos
     if ( e.target.classList.contains('agregar-carrito') ) {
-        //html del curso seleccionado
+        //seleccionar el html del curso seleccionado
         const cursoSeleccionado = e.target.parentElement.parentElement;
-        //lo enviamos a una funcion para leer la info del curso
+        //lo mandamos a la funcion que leera la info del html
         leerInfoCurso( cursoSeleccionado );
     }
 }
-//funcion para leer la info del curso
+//funcion para leer la informacion del curso seleccionado
 function leerInfoCurso( cursoSeleccionado ) {
-    //construimos el objeto con la info que necesitamos
+    //construimos un objeto con la informacion del cursos seleccionado
     const cursoInfo = {
         imagen: cursoSeleccionado.querySelector('img').src,
         titulo: cursoSeleccionado.querySelector('h4').textContent,
         precio: cursoSeleccionado.querySelector('p.precio span').textContent,
-        cantidad: 1,
+        cantidad : 1,
         id: cursoSeleccionado.querySelector('a').getAttribute('data-id')
     }
-    //actualizar cantidad de curso
-    //verificar si existe el id del curso seleccinado en el arreglo
-    const existe = cursosSeleccionados.some( curso => curso.id === cursoInfo.id );
-    //en caso de que existe entra al IF()
+    //aumentar cantidad en caso de presionar el mismo curso
+    const existe = cursosSeleccinados.some( curso => curso.id === cursoInfo.id );
+    //en caso de que existe
     if ( existe ) {
-        //con un if verificar si el id a agregar es igual a que esta en el arreglo
-        const curso = cursosSeleccionados.map( curso => {
-            if ( curso.id === cursoInfo.id) {
+        const curso = cursosSeleccinados.map( curso => {
+            if ( curso.id === cursoInfo.id ) {
+                //aumentar la cantidad
                 curso.cantidad++;
                 return curso;
             }else{
                 return curso;
             }
         });
-        //asignamos "curso" a el arreglo cursosSeleccionados
-        cursosSeleccionados = curso;
-    }else{
-        //arreglo con cursos seleccionados
-        cursosSeleccionados = [ ...cursosSeleccionados, cursoInfo ];   
+        //asignamos el nuevo valor curso a cursosSeleccinados
+        cursosSeleccinados = curso;
+    }else {
+        //de lo contrario solo se agrega normalmente
+        //arreglo cursosSeleccinados
+        cursosSeleccinados = [ ...cursosSeleccinados, cursoInfo ];
     }
-    //funcion para renderizar
-    carritoHTML();
-}
-//borrar cursos
-function borrarCurso( e ) {
-    ///prevenir accion por defecto
-    e.preventDefault();
-    //detectar cuando hagan click en la clase
-    if ( e.target.classList.contains('borrar-curso') ) {
-        //id del curso a eliminar
-        const cursoId = e.target.getAttribute('data-id');
-        
-        cursosSeleccionados = cursosSeleccionados.filter( curso => curso.id !== cursoId );
-        //renderizar
-        carritoHTML();
-    }
-}
 
-//funcion para renderizar
-function carritoHTML() {
-    //limpiar el html anterior
+    
+    //mandar a funcion para renderizar los cursos en el carrito
+    cursoHTML();
+}
+//funcion para renderizar los cursos
+function cursoHTML() {
+    //limipar el html anterior
     limpiarHTML();
-    //recorrer el arreglo con un foreach
-    cursosSeleccionados.forEach( curso => {
+    //con un foreach recorremos el arreglo
+    cursosSeleccinados.forEach( curso => {
         //destructuring
-        const { imagen, titulo, precio, cantidad, id } = curso;
-        //constuir el html
+        const { cantidad, id, imagen, precio, titulo } = curso;
+        //construir el html
         const row = document.createElement('tr');
-        //añadir el td al tr
+        //innertext
         row.innerHTML = `
-            <td><img src="${ imagen }" alt="${ titulo }" width="100" ></td>
-            <td>${ titulo }</td>        
-            <td>${ precio }</td>        
-            <td>${ cantidad }</td>        
-            <td><a href="#" class="borrar-curso" data-id="${ id }">x</a></td>        
+            <td><img src="${ imagen }" width="100" ></td>
+            <td>${ titulo }</td>
+            <td>${ precio }</td>
+            <td>${ cantidad }</td>
+            <td><a class="borrar-curso" target="#" data-id="${ id }" >x</a></td>
         `;
         //renderizar
-        cursosCarrito.appendChild( row );
+        listaCarrito.appendChild( row );
     });
-    //sincronizar storage
+    //sincronizar el storage
     sincronizarStorage();
 }
-//funcion para sioncronizar el localstorage
+//borrar curso
+function borrarCurso( e ) {
+    //console.log( e.target.classList.contains('borrar-curso') );
+    if ( e.target.classList.contains('borrar-curso') ) {
+        const idCurso = e.target.getAttribute('data-id');
+        cursosSeleccinados = cursosSeleccinados.filter( curso => curso.id !== idCurso );
+        //renderizamos
+        cursoHTML();
+    }
+}
+//funcion para sincrnizar el local storage
 function sincronizarStorage() {
-    localStorage.setItem( 'cursosStorage', JSON.stringify( cursosSeleccionados) );
+    localStorage.setItem( 'carritoStorage', JSON.stringify( cursosSeleccinados ) );
 }
 //limpiar el html anterior
 function limpiarHTML() {
-    while ( cursosCarrito.firstChild ) {
-        cursosCarrito.removeChild( cursosCarrito.firstChild );
+    while( listaCarrito.firstChild ) {
+        listaCarrito.removeChild( listaCarrito.firstChild );
     }
 }
