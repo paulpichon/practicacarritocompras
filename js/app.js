@@ -77,6 +77,7 @@ function leerInfoCurso( cursoSeleccionado ) {
     //mandar a funcion para renderizar los cursos en el carrito
     cursoHTML();
 }
+///algo aqui
 //funcion para renderizar los cursos
 function cursoHTML() {
     //limipar el html anterior
