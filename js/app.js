@@ -1,6 +1,8 @@
 //variables
 //lista de los cursos
 const listaCursos = document.querySelector('#lista-cursos');
+//variable donde se renderizaran los cursos en el carrito 
+const listaCarrito = document.querySelector('#lista-carrito tbody');
 //arreglo que ira alamacenado los curso seleccionados
 let cursosSeleccionados = [];
 
@@ -52,14 +54,41 @@ function leerDatosCurso(cursoSeleccionado) {
         //se asigna el valor de cursoActualizar a cursosSeleccionados
         cursosSeleccionados = cursoActualizar;
 
+    }else{
+        //añadir el curso al arreglo
+        cursosSeleccionados = [...cursosSeleccionados, cursoAgregado];
     }
 
-    //añadir el curso al arreglo
-    cursosSeleccionados = [...cursosSeleccionados, cursoAgregado];
     //renderizar el curso en el carrito
     carritoHTML();
 }
 //funcion para renderizar el curso en el carrito
 function carritoHTML() {
-    
+    //limpiar el HTML anterior
+    limpiarHTML();
+    //recorremos el arreglo con un foreach
+    cursosSeleccionados.forEach( curso => {
+        //destructuring
+        const { imagen, titulo, precio, cantidad, id } = curso;
+        //construir el HTML
+        const row = document.createElement('tr');
+        //innerhtml
+        row.innerHTML = `
+            <td><img src="${imagen}" width="100" ></td>
+            <td>${titulo}</td>
+            <td>${precio}</td>
+            <td>${cantidad}</td>
+            <td><a href="#" class="borrar-curso" data-${id} >X</a></td>
+        `;
+        //renderizar
+        listaCarrito.appendChild( row );
+
+    });
+    //sincronizar el localstorage
+}
+//funcion para limpiar el html
+function limpiarHTML() {
+    while( listaCarrito.firstChild ){
+        listaCarrito.removeChild( listaCarrito.firstChild );
+    }
 }
