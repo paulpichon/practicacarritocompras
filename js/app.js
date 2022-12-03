@@ -1,6 +1,8 @@
 //variables
 //lista de los cursos
 const listaCursos = document.querySelector('#lista-cursos');
+//arreglo que ira alamacenado los curso seleccionados
+let cursosSeleccionados = [];
 
 
 
@@ -27,15 +29,37 @@ function agregarCurso ( e ) {
 
 //funcion para leer los datos del curso seleccionado
 function leerDatosCurso(cursoSeleccionado) {
-    console.log(cursoSeleccionado);
     //construirun objeto con la informacion que necesitamos
-    const curso = {
+    const cursoAgregado = {
         imagen: cursoSeleccionado.querySelector('img').src,
         titulo: cursoSeleccionado.querySelector('h4').textContent,
-        precio: cursoSeleccionado.querySelector('p.precio span').texContent,
+        precio: cursoSeleccionado.querySelector('p.precio span').textContent,
         cantidad: 1,
         id: cursoSeleccionado.querySelector('a').dataset.id
     }
+    //verificar si el curso agregadoya esta en el arreglo o es nuevo
+    const existe = cursosSeleccionados.some( curso => curso.id === cursoAgregado.id );
+    //si existe el curso en el arrelgo
+    if (existe) {
+        const cursoActualizar = cursosSeleccionados.map( curso => {
+            if (curso.id === cursoAgregado.id) {
+                curso.cantidad++;
+                return curso;
+            }else{
+                return curso;
+            }
+        });
+        //se asigna el valor de cursoActualizar a cursosSeleccionados
+        cursosSeleccionados = cursoActualizar;
 
-    console.log( curso );
+    }
+
+    //añadir el curso al arreglo
+    cursosSeleccionados = [...cursosSeleccionados, cursoAgregado];
+    //renderizar el curso en el carrito
+    carritoHTML();
+}
+//funcion para renderizar el curso en el carrito
+function carritoHTML() {
+    
 }
